@@ -38,27 +38,29 @@ const ListIMEIs = () => {
       {/* Componente de exportación */}
       <ExportIMEIs imeis={imeis} />
 
-      {/* Tabla de IMEIs */}
-      <table className="table table-bordered table-striped">
-        <thead className="thead-dark">
-          <tr>
-            <th>IMEI</th>
-            <th>Estado</th>
-            <th>Fecha de Creación</th>
-            <th>Última Actualización</th>
-          </tr>
-        </thead>
-        <tbody>
-          {imeis.map((imei) => (
-            <tr key={imei.id}>
-              <td>{imei.imei}</td>
-              <td>{imei.estado === 'L' ? 'Libre' : 'Vendido'}</td>
-              <td>{new Date(imei.createdAt).toLocaleString()}</td>
-              <td>{new Date(imei.updatedAt).toLocaleString()}</td>
+      {/* Tabla de IMEIs con clase responsive */}
+      <div className="table-responsive">
+        <table className="table table-bordered table-striped">
+          <thead className="thead-dark">
+            <tr>
+              <th>IMEI</th>
+              <th>Estado</th>
+              <th>Fecha de Creación</th>
+              <th>Última Actualización</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {imeis.map((imei) => (
+              <tr key={imei.id}>
+                <td>{imei.imei}</td>
+                <td>{imei.estado === 'L' ? 'Libre' : 'Vendido'}</td>
+                <td>{new Date(imei.createdAt).toLocaleString()}</td>
+                <td>{new Date(imei.updatedAt).toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
