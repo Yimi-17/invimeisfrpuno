@@ -52,13 +52,25 @@ const IMEIManager = () => {
   };
 
   const deleteIMEI = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchIMEIs();
-    } catch (error) {
-      console.error('Error al eliminar IMEI:', error);
+    // Mostrar el mensaje de confirmación
+    const isConfirmed = window.confirm('¿Estás seguro de que deseas eliminar este IMEI?');
+  
+    // Si el usuario confirma, procede con la eliminación
+    if (isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        fetchIMEIs(); // Vuelve a obtener la lista de IMEIs después de la eliminación
+        alert('IMEI eliminado exitosamente'); // Mensaje de éxito
+      } catch (error) {
+        console.error('Error al eliminar IMEI:', error);
+        alert('Hubo un error al eliminar el IMEI. Intenta nuevamente.'); // Mensaje de error
+      }
+    } else {
+      // Si el usuario cancela, muestra este mensaje
+      console.log('Eliminación cancelada');
     }
   };
+  
 
   const handleSearch = (imeis) => {
     return imeis.filter((imei) =>
