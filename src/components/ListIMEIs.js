@@ -45,7 +45,7 @@ const ListIMEIs = () => {
             <tr>
               <th>IMEI</th>
               <th>Estado</th>
-              <th>Fecha de Creación</th>
+              <th>Fecha de Ingreso</th>
               <th>Última Actualización</th>
             </tr>
           </thead>
