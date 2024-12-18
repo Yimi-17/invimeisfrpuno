@@ -3,7 +3,8 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
-const AuditorForm = ({ onSubmit, onCancel }) => {
+const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
+  const seriesVendidas = imeis.filter(imei => imei.estado === 'V');
   // Asegurarnos que el body no se pueda scrollear cuando el modal está abierto
   React.useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -114,6 +115,38 @@ const AuditorForm = ({ onSubmit, onCancel }) => {
               >
                 Agregar Otro Auditor
               </button>
+              {/* Sección de Series Vendidas */}
+              <div className="mb-3 border rounded p-3 bg-light">
+                <h6 className="mb-3">Series Vendidas</h6>
+                {seriesVendidas.length > 0 ? (
+                  <>
+                    <div className="table-responsive" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                      <table className="table table-sm table-bordered">
+                        <thead className="table-secondary">
+                          <tr>
+                            <th>IMEI</th>
+                            <th>Fecha de Actualización</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {seriesVendidas.map((serie) => (
+                            <tr key={serie.id}>
+                              <td>{serie.imei}</td>
+                              <td>{new Date(serie.updatedAt).toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="mt-2">
+                      <strong>Total series vendidas:</strong> {seriesVendidas.length}
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-muted mb-0">No hay series vendidas para mostrar.</p>
+                )}
+              </div>
+
               <div className="mb-3">
                 <label className="form-label">Observaciones</label>
                 <textarea
@@ -121,6 +154,7 @@ const AuditorForm = ({ onSubmit, onCancel }) => {
                   value={observaciones}
                   onChange={(e) => setObservaciones(e.target.value)}
                   rows="3"
+                  placeholder="Ingrese observaciones adicionales..."
                 ></textarea>
               </div>
               <div className="modal-footer">
@@ -188,10 +222,16 @@ const IMEIManager = () => {
   };
 
   const handleAuditSubmit = ({ auditors, observaciones }) => {
-    const dataWithoutId = imeis.map(({ id, ...rest }) => rest);
+    // Preparar los datos con los nuevos encabezados
+    const formattedData = imeis.map(({ id, imei, estado, createdAt, updatedAt }) => ({
+      'IMEI': imei,
+      'ESTADO': estado === 'L' ? 'Libre' : 'Vendido',
+      'FECHA DE INGRESO': new Date(createdAt).toLocaleString(),
+      'FECHA DE ACTUALIZACIÓN': new Date(updatedAt).toLocaleString()
+    }));
     
     // Crear una nueva hoja de trabajo para los datos de IMEI
-    const worksheet = XLSX.utils.json_to_sheet(dataWithoutId);
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
     
     // Crear una nueva hoja de trabajo para la información de auditoría
     const auditData = [
@@ -211,8 +251,25 @@ const IMEIManager = () => {
       auditData.push(['']);
     });
 
+    // Agregar información de series vendidas
+    const seriesVendidas = imeis.filter(imei => imei.estado === 'V');
+    if (seriesVendidas.length > 0) {
+      auditData.push(['']);
+      auditData.push(['SERIES VENDIDAS:']);
+      auditData.push(['Total de series vendidas:', seriesVendidas.length]);
+      auditData.push(['']);
+      auditData.push(['IMEI', 'Fecha de Actualización']);
+      seriesVendidas.forEach(serie => {
+        auditData.push([
+          serie.imei,
+          new Date(serie.updatedAt).toLocaleString()
+        ]);
+      });
+    }
+
     // Agregar observaciones si existen
     if (observaciones) {
+      auditData.push(['']);
       auditData.push(['OBSERVACIONES:']);
       auditData.push([observaciones]);
     }
@@ -391,6 +448,7 @@ const IMEIManager = () => {
       {/* Modal de Auditoría */}
       {showAuditForm && (
         <AuditorForm
+          imeis={imeis}
           onSubmit={handleAuditSubmit}
           onCancel={() => {
             setShowAuditForm(false);
