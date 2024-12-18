@@ -10,7 +10,7 @@ const ListIMEIs = () => {
   useEffect(() => {
     const fetchIMEIs = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/imeis');
+        const response = await axios.get('https://backinvfrpuno.onrender.com/imeis');
         setImeis(response.data);
       } catch (error) {
         setError('Error al obtener los IMEIs');

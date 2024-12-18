@@ -11,7 +11,7 @@ const IMEIManager = () => {
   const [editingIMEI, setEditingIMEI] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = 'https://backinvfrpuno.onrender.com/imeis';
+  const API_URL = 'http://localhost:3000/imeis';
 
   const fetchIMEIs = async () => {
     setLoading(true);
