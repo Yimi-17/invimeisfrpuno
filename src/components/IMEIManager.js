@@ -183,6 +183,7 @@ const IMEIManager = () => {
   const [loading, setLoading] = useState(true);
   const [showAuditForm, setShowAuditForm] = useState(false);
   const [exportFormat, setExportFormat] = useState(null);
+  const [stateFilter, setStateFilter] = useState('ALL'); // Nuevo estado para filtrado
 
   const API_URL = 'https://backinvfrpuno.onrender.com/imeis';
 
@@ -203,16 +204,23 @@ const IMEIManager = () => {
   }, [fetchIMEIs]);
 
   const handleSearch = (imeis) => {
-    if (!searchTerm.trim()) return imeis;
+    let filteredImeis = imeis;
     
-    return imeis.filter(({ imei }) => {
-      // Obtener los últimos n dígitos del IMEI (donde n es la longitud del término de búsqueda)
-      const searchLength = searchTerm.length;
-      const imeiEndDigits = imei.slice(-searchLength);
-      
-      // Comprobar si los dígitos coinciden
-      return imeiEndDigits === searchTerm;
-    });
+    // Primero aplicar filtro de estado
+    if (stateFilter !== 'ALL') {
+      filteredImeis = filteredImeis.filter(imei => imei.estado === stateFilter);
+    }
+    
+    // Luego aplicar filtro de búsqueda
+    if (searchTerm.trim()) {
+      filteredImeis = filteredImeis.filter(({ imei }) => {
+        const searchLength = searchTerm.length;
+        const imeiEndDigits = imei.slice(-searchLength);
+        return imeiEndDigits === searchTerm;
+      });
+    }
+    
+    return filteredImeis;
   };
 
   const handleExport = (format) => {
@@ -329,13 +337,52 @@ const IMEIManager = () => {
             className="form-control"
             placeholder="Buscar por últimos dígitos"
             value={searchTerm}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '');
-              setSearchTerm(value);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
             maxLength="4"
           />
         </div>
+
+        {/* Filtro de Estado */}
+        <div className="col-12 col-md-3 mb-2 mb-md-0">
+          <div className="btn-group w-100" role="group">
+            <input
+              type="radio"
+              className="btn-check"
+              name="stateFilter"
+              id="all"
+              checked={stateFilter === 'ALL'}
+              onChange={() => setStateFilter('ALL')}
+            />
+            <label className="btn btn-outline-primary" htmlFor="all">
+              Todos
+            </label>
+
+            <input
+              type="radio"
+              className="btn-check"
+              name="stateFilter"
+              id="libre"
+              checked={stateFilter === 'L'}
+              onChange={() => setStateFilter('L')}
+            />
+            <label className="btn btn-outline-primary" htmlFor="libre">
+              Libres
+            </label>
+
+            <input
+              type="radio"
+              className="btn-check"
+              name="stateFilter"
+              id="vendido"
+              checked={stateFilter === 'V'}
+              onChange={() => setStateFilter('V')}
+            />
+            <label className="btn btn-outline-primary" htmlFor="vendido">
+              Vendidos
+            </label>
+          </div>
+        </div>
+
         <div className="col-12 col-md-3 mb-2 mb-md-0">
           <input
             type="text"
@@ -378,93 +425,98 @@ const IMEIManager = () => {
               <tr key={imei.id}>
                 <td>
                   {editingIMEI?.id === imei.id ? (
-                    <input type="text"
-                    className="form-control"
-                    value={editingIMEI.imei}
-                    onChange={(e) => setEditingIMEI({ ...editingIMEI, imei: e.target.value })}
-                  />
-                ) : (
-                  imei.imei
-                )}
-              </td>
-              <td>
-                {editingIMEI?.id === imei.id ? (
-                  <select
-                    className="form-control"
-                    value={editingIMEI.estado}
-                    onChange={(e) => setEditingIMEI({ ...editingIMEI, estado: e.target.value })}
-                  >
-                    <option value="L">Libre</option>
-                    <option value="V">Vendido</option>
-                  </select>
-                ) : (
-                  imei.estado === 'L' ? 'Libre' : 'Vendido'
-                )}
-              </td>
-              <td>{new Date(imei.createdAt).toLocaleString()}</td>
-              <td>{new Date(imei.updatedAt).toLocaleString()}</td>
-              <td>
-                {editingIMEI?.id === imei.id ? (
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editingIMEI.imei}
+                      onChange={(e) => setEditingIMEI({ ...editingIMEI, imei: e.target.value })}
+                    />
+                  ) : (
+                    imei.imei
+                  )}
+                </td>
+                <td>
+                  {editingIMEI?.id === imei.id ? (
+                    <select
+                      className="form-control"
+                      value={editingIMEI.estado}
+                      onChange={(e) => setEditingIMEI({ ...editingIMEI, estado: e.target.value })}
+                    >
+                      <option value="L">Libre</option>
+                      <option value="V">Vendido</option>
+                    </select>
+                  ) : (
+                    imei.estado === 'L' ? 'Libre' : 'Vendido'
+                  )}
+                </td>
+                <td>{new Date(imei.createdAt).toLocaleString()}</td>
+                <td>{new Date(imei.updatedAt).toLocaleString()}</td>
+                <td>
+                  {editingIMEI?.id === imei.id ? (
+                    <button 
+                      className="btn btn-success me-2" 
+                      onClick={() => handleAction('update', editingIMEI)}
+                    >
+                      Guardar
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-warning me-2"
+                      onClick={() => setEditingIMEI(imei)}
+                    >
+                      Editar
+                    </button>
+                  )}
                   <button 
-                    className="btn btn-success me-2" 
-                    onClick={() => handleAction('update', editingIMEI)}
+                    className="btn btn-danger"
+                    onClick={() => handleAction('delete', imei)}
                   >
-                    Guardar
+                    Eliminar
                   </button>
-                ) : (
-                  <button
-                    className="btn btn-warning me-2"
-                    onClick={() => setEditingIMEI(imei)}
-                  >
-                    Editar
-                  </button>
-                )}
-                <button 
-                  className="btn btn-danger"
-                  onClick={() => handleAction('delete', imei)}
-                >
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    <div className="mt-3">
-      <p><strong>Total de IMEIs:</strong> {filteredIMEIs.length}</p>
-    </div>
-
-    <div className="mt-4">
-      <div className="d-flex gap-3">
-        <button 
-          onClick={() => handleExport('excel')} 
-          className="btn btn-primary"
-        >
-          Exportar a Excel
-        </button>
-        <button 
-          onClick={() => handleExport('csv')} 
-          className="btn btn-secondary"
-        >
-          Exportar a CSV
-        </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </div>
 
-    {showAuditForm && (
-      <AuditorForm
-        imeis={imeis}
-        onSubmit={handleAuditSubmit}
-        onCancel={() => {
-          setShowAuditForm(false);
-          setExportFormat(null);
-        }}
-      />
-    )}
-  </div>
-);
+      <div className="mt-3">
+        <p>
+          <strong>
+            Total de IMEIs {stateFilter === 'L' ? 'Libres' : stateFilter === 'V' ? 'Vendidos' : ''}:
+          </strong> {filteredIMEIs.length}
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <div className="d-flex gap-3">
+          <button 
+            onClick={() => handleExport('excel')} 
+            className="btn btn-primary"
+          >
+            Exportar a Excel
+          </button>
+          <button 
+            onClick={() => handleExport('csv')} 
+            className="btn btn-secondary"
+          >
+            Exportar a CSV
+          </button>
+        </div>
+      </div>
+
+      {showAuditForm && (
+        <AuditorForm
+          imeis={imeis}
+          onSubmit={handleAuditSubmit}
+          onCancel={() => {
+            setShowAuditForm(false);
+            setExportFormat(null);
+          }}
+        />
+      )}
+    </div>
+  );
 };
 
 export default IMEIManager;
