@@ -14,7 +14,9 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
     };
   }, []);
 
-  const [auditors, setAuditors] = useState([{ nombres: "", apellidos: "", dni: "" }]);
+  const [auditors, setAuditors] = useState([
+    { nombres: "", apellidos: "", dni: "" },
+  ]);
   const [observaciones, setObservaciones] = useState("");
 
   const handleAuditorChange = (index, field, value) => {
@@ -23,7 +25,8 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
     setAuditors(newAuditors);
   };
 
-  const addAuditor = () => setAuditors([...auditors, { nombres: "", apellidos: "", dni: "" }]);
+  const addAuditor = () =>
+    setAuditors([...auditors, { nombres: "", apellidos: "", dni: "" }]);
 
   const removeAuditor = (index) => {
     if (auditors.length > 1) {
@@ -42,24 +45,59 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Información de Auditoría</h5>
-            <button type="button" className="btn-close" onClick={onCancel}></button>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={onCancel}
+            ></button>
           </div>
           <div className="modal-body">
             <form onSubmit={handleSubmit}>
               {auditors.map((auditor, index) => (
                 <div key={index} className="mb-4 p-3 border rounded">
                   <h6>Auditor {index + 1}</h6>
-                  <InputField label="Nombres" value={auditor.nombres} onChange={(e) => handleAuditorChange(index, "nombres", e.target.value)} required />
-                  <InputField label="Apellidos" value={auditor.apellidos} onChange={(e) => handleAuditorChange(index, "apellidos", e.target.value)} required />
-                  <InputField label="DNI" value={auditor.dni} onChange={(e) => handleAuditorChange(index, "dni", e.target.value)} required pattern="[0-9]{8}" maxLength="8" />
+                  <InputField
+                    label="Nombres"
+                    value={auditor.nombres}
+                    onChange={(e) =>
+                      handleAuditorChange(index, "nombres", e.target.value)
+                    }
+                    required
+                  />
+                  <InputField
+                    label="Apellidos"
+                    value={auditor.apellidos}
+                    onChange={(e) =>
+                      handleAuditorChange(index, "apellidos", e.target.value)
+                    }
+                    required
+                  />
+                  <InputField
+                    label="DNI"
+                    value={auditor.dni}
+                    onChange={(e) =>
+                      handleAuditorChange(index, "dni", e.target.value)
+                    }
+                    required
+                    pattern="[0-9]{8}"
+                    maxLength="8"
+                  />
                   {auditors.length > 1 && (
-                    <button type="button" className="btn btn-danger btn-sm" onClick={() => removeAuditor(index)}>
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => removeAuditor(index)}
+                    >
                       Eliminar Auditor
                     </button>
                   )}
                 </div>
               ))}
-              <button type="button" className="btn btn-secondary mb-3" onClick={addAuditor}>
+              <button
+                type="button"
+                className="btn btn-secondary mb-3"
+                onClick={addAuditor}
+              >
                 Agregar Otro Auditor
               </button>
 
@@ -67,7 +105,10 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
                 <h6 className="mb-3">Series Vendidas</h6>
                 {seriesVendidas.length > 0 ? (
                   <>
-                    <div className="table-responsive" style={{ maxHeight: "200px", overflowY: "auto" }}>
+                    <div
+                      className="table-responsive"
+                      style={{ maxHeight: "200px", overflowY: "auto" }}
+                    >
                       <table className="table table-sm table-bordered">
                         <thead className="table-secondary">
                           <tr>
@@ -79,27 +120,42 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
                           {seriesVendidas.map((serie) => (
                             <tr key={serie.id}>
                               <td>{serie.imei}</td>
-                              <td>{new Date(serie.updatedAt).toLocaleString()}</td>
+                              <td>
+                                {new Date(serie.updatedAt).toLocaleString()}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
                     <div className="mt-2">
-                      <strong>Total series vendidas:</strong> {seriesVendidas.length}
+                      <strong>Total series vendidas:</strong>{" "}
+                      {seriesVendidas.length}
                     </div>
                   </>
                 ) : (
-                  <p className="text-muted mb-0">No hay series vendidas para mostrar.</p>
+                  <p className="text-muted mb-0">
+                    No hay series vendidas para mostrar.
+                  </p>
                 )}
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Observaciones</label>
-                <textarea className="form-control" value={observaciones} onChange={(e) => setObservaciones(e.target.value)} rows="3" placeholder="Ingrese observaciones adicionales..."></textarea>
+                <textarea
+                  className="form-control"
+                  value={observaciones}
+                  onChange={(e) => setObservaciones(e.target.value)}
+                  rows="3"
+                  placeholder="Ingrese observaciones adicionales..."
+                ></textarea>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={onCancel}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onCancel}
+                >
                   Cancelar
                 </button>
                 <button type="submit" className="btn btn-primary">
@@ -154,12 +210,13 @@ const IMEIManager = () => {
   const [exportFormat, setExportFormat] = useState(null);
   const [stateFilter, setStateFilter] = useState("ALL"); // Nuevo estado para filtrado
 
-  const API_URL = "https://backinvfrpuno.onrender.com/imeis/all";
+  const API_URL = "https://backinvfrpuno.onrender.com/imeis";
+  const API_URL_ALL = `${API_URL}/all`;
 
   const fetchIMEIs = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await axios.get(API_URL_ALL); // Usar la URL para obtener todos
       setImeis(data);
     } catch (error) {
       console.error("Error al obtener los IMEIs:", error);
@@ -177,12 +234,16 @@ const IMEIManager = () => {
 
     // Primero aplicar filtro de estado
     if (stateFilter !== "ALL") {
-      filteredImeis = filteredImeis.filter((imei) => imei.estado === stateFilter);
+      filteredImeis = filteredImeis.filter(
+        (imei) => imei.estado === stateFilter
+      );
     }
 
     // Luego aplicar filtro de búsqueda
     if (searchTerm.trim()) {
-      filteredImeis = filteredImeis.filter(({ imei }) => imei.endsWith(searchTerm));
+      filteredImeis = filteredImeis.filter(({ imei }) =>
+        imei.endsWith(searchTerm)
+      );
     }
 
     return filteredImeis;
@@ -203,12 +264,14 @@ const IMEIManager = () => {
   };
 
   const handleAuditSubmit = ({ auditors, observaciones }) => {
-    const formattedData = imeis.map(({ id, imei, estado, createdAt, updatedAt }) => ({
-      IMEI: imei,
-      ESTADO: estado === "L" ? "Libre" : "Vendido",
-      "FECHA DE INGRESO": new Date(createdAt).toLocaleString(),
-      "FECHA DE ACTUALIZACIÓN": new Date(updatedAt).toLocaleString(),
-    }));
+    const formattedData = imeis.map(
+      ({ id, imei, estado, createdAt, updatedAt }) => ({
+        IMEI: imei,
+        ESTADO: estado === "L" ? "Libre" : "Vendido",
+        "FECHA DE INGRESO": new Date(createdAt).toLocaleString(),
+        "FECHA DE ACTUALIZACIÓN": new Date(updatedAt).toLocaleString(),
+      })
+    );
 
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
 
@@ -236,7 +299,10 @@ const IMEIManager = () => {
       auditData.push([""]);
       auditData.push(["IMEI", "Fecha de Actualización"]);
       seriesVendidas.forEach((serie) => {
-        auditData.push([serie.imei, new Date(serie.updatedAt).toLocaleString()]);
+        auditData.push([
+          serie.imei,
+          new Date(serie.updatedAt).toLocaleString(),
+        ]);
       });
     }
 
@@ -250,38 +316,68 @@ const IMEIManager = () => {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "IMEIs");
-    XLSX.utils.book_append_sheet(workbook, auditWorksheet, "Información de Auditoría");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      auditWorksheet,
+      "Información de Auditoría"
+    );
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `imeis_auditoria_${new Date().toISOString().split("T")[0]}.xlsx`;
+    link.download = `imeis_auditoria_${
+      new Date().toISOString().split("T")[0]
+    }.xlsx`;
     link.click();
 
     setShowAuditForm(false);
     setExportFormat(null);
   };
 
-  const exportToCSV = (data) => new Blob([Papa.unparse(data)], { type: "text/csv;charset=utf-8;" });
+  const exportToCSV = (data) =>
+    new Blob([Papa.unparse(data)], { type: "text/csv;charset=utf-8;" });
 
   const handleAction = async (action, imeiData) => {
-    if (action === "add") {
-      if (!newIMEI) return alert("El campo IMEI es obligatorio");
-      await axios.post(API_URL, { imei: newIMEI, estado: newEstado });
-      setNewIMEI("");
-      setNewEstado("L");
-    } else if (action === "update") {
-      await axios.put(`${API_URL}/${imeiData.id}`, imeiData);
-      setEditingIMEI(null);
-    } else if (action === "delete") {
-      const isConfirmed = window.confirm("¿Estás seguro de que deseas eliminar este IMEI?");
-      if (isConfirmed) {
-        await axios.delete(`${API_URL}/${imeiData.id}`);
-        alert("IMEI eliminado exitosamente");
+    try {
+      if (action === "add") {
+        if (!newIMEI) return alert("El campo IMEI es obligatorio");
+        await axios.post(API_URL, { imei: newIMEI, estado: newEstado });
+        setNewIMEI("");
+        setNewEstado("L");
+      } else if (action === "update") {
+        await axios.put(`${API_URL}/${imeiData.id}`, imeiData);
+        setEditingIMEI(null);
+      } else if (action === "delete") {
+        const isConfirmed = window.confirm(
+          "¿Estás seguro que deseas mover este IMEI a la lista de eliminados?"
+        );
+        if (isConfirmed) {
+          try {
+            // Usar la URL base correcta para el delete
+            const response = await axios.delete(`${API_URL}/${imeiData.id}`);
+            alert(response.data.message || "IMEI movido a eliminados exitosamente");
+            await fetchIMEIs();
+          } catch (error) {
+            console.error("Error al mover el IMEI:", error);
+            const errorMessage = error.response?.data?.error || "Error al mover el IMEI a eliminados";
+            alert(`Error: ${errorMessage}. Por favor, intente nuevamente.`);
+          }
+        }
       }
+      if (action !== "delete") {
+        await fetchIMEIs();
+      }
+    } catch (error) {
+      console.error("Error en la operación:", error);
+      const errorMessage = error.response?.data?.error || error.message;
+      alert(`Error en la operación: ${errorMessage}`);
     }
-    fetchIMEIs();
   };
 
   if (loading) return <p className="text-center">Cargando...</p>;
@@ -294,7 +390,14 @@ const IMEIManager = () => {
 
       <div className="row mb-3">
         <div className="col-12 col-md-3 mb-2 mb-md-0">
-          <input type="text" className="form-control" placeholder="Buscar por últimos dígitos" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} maxLength="4" />
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar por últimos dígitos"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            maxLength="4"
+          />
         </div>
 
         {/* Filtro de Estado */}
@@ -339,16 +442,29 @@ const IMEIManager = () => {
         </div>
 
         <div className="col-12 col-md-3 mb-2 mb-md-0">
-          <input type="text" className="form-control" placeholder="Nuevo IMEI" value={newIMEI} onChange={(e) => setNewIMEI(e.target.value)} />
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Nuevo IMEI"
+            value={newIMEI}
+            onChange={(e) => setNewIMEI(e.target.value)}
+          />
         </div>
         <div className="col-12 col-md-3 mb-2 mb-md-0">
-          <select className="form-control" value={newEstado} onChange={(e) => setNewEstado(e.target.value)}>
+          <select
+            className="form-control"
+            value={newEstado}
+            onChange={(e) => setNewEstado(e.target.value)}
+          >
             <option value="L">Libre</option>
             <option value="V">Vendido</option>
           </select>
         </div>
         <div className="col-12 col-md-3">
-          <button className="btn btn-primary w-100" onClick={() => handleAction("add")}>
+          <button
+            className="btn btn-primary w-100"
+            onClick={() => handleAction("add")}
+          >
             Agregar
           </button>
         </div>
@@ -370,34 +486,61 @@ const IMEIManager = () => {
               <tr key={imei.id}>
                 <td>
                   {editingIMEI?.id === imei.id ? (
-                    <input type="text" className="form-control" value={editingIMEI.imei} onChange={(e) => setEditingIMEI({ ...editingIMEI, imei: e.target.value })} />
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editingIMEI.imei}
+                      onChange={(e) =>
+                        setEditingIMEI({ ...editingIMEI, imei: e.target.value })
+                      }
+                    />
                   ) : (
                     imei.imei
                   )}
                 </td>
                 <td>
                   {editingIMEI?.id === imei.id ? (
-                    <select className="form-control" value={editingIMEI.estado} onChange={(e) => setEditingIMEI({ ...editingIMEI, estado: e.target.value })}>
+                    <select
+                      className="form-control"
+                      value={editingIMEI.estado}
+                      onChange={(e) =>
+                        setEditingIMEI({
+                          ...editingIMEI,
+                          estado: e.target.value,
+                        })
+                      }
+                    >
                       <option value="L">Libre</option>
                       <option value="V">Vendido</option>
                     </select>
+                  ) : imei.estado === "L" ? (
+                    "Libre"
                   ) : (
-                    imei.estado === "L" ? "Libre" : "Vendido"
+                    "Vendido"
                   )}
                 </td>
                 <td>{new Date(imei.createdAt).toLocaleString()}</td>
                 <td>{new Date(imei.updatedAt).toLocaleString()}</td>
                 <td>
                   {editingIMEI?.id === imei.id ? (
-                    <button className="btn btn-success me-2" onClick={() => handleAction("update", editingIMEI)}>
+                    <button
+                      className="btn btn-success me-2"
+                      onClick={() => handleAction("update", editingIMEI)}
+                    >
                       Guardar
                     </button>
                   ) : (
-                    <button className="btn btn-warning me-2" onClick={() => setEditingIMEI(imei)}>
+                    <button
+                      className="btn btn-warning me-2"
+                      onClick={() => setEditingIMEI(imei)}
+                    >
                       Editar
                     </button>
                   )}
-                  <button className="btn btn-danger" onClick={() => handleAction("delete", imei)}>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleAction("delete", imei)}
+                  >
                     Eliminar
                   </button>
                 </td>
@@ -410,7 +553,13 @@ const IMEIManager = () => {
       <div className="mt-3">
         <p>
           <strong>
-            Total de IMEIs {stateFilter === "L" ? "Libres" : stateFilter === "V" ? "Vendidos" : ""}:
+            Total de IMEIs{" "}
+            {stateFilter === "L"
+              ? "Libres"
+              : stateFilter === "V"
+              ? "Vendidos"
+              : ""}
+            :
           </strong>{" "}
           {filteredIMEIs.length}
         </p>
@@ -418,10 +567,16 @@ const IMEIManager = () => {
 
       <div className="mt-4">
         <div className="d-flex gap-3">
-          <button onClick={() => handleExport("excel")} className="btn btn-primary">
+          <button
+            onClick={() => handleExport("excel")}
+            className="btn btn-primary"
+          >
             Exportar a Excel
           </button>
-          <button onClick={() => handleExport("csv")} className="btn btn-secondary">
+          <button
+            onClick={() => handleExport("csv")}
+            className="btn btn-secondary"
+          >
             Exportar a CSV
           </button>
         </div>
