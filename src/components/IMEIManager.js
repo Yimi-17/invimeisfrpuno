@@ -209,6 +209,7 @@ const IMEIManager = () => {
   const [showAuditForm, setShowAuditForm] = useState(false);
   const [exportFormat, setExportFormat] = useState(null);
   const [stateFilter, setStateFilter] = useState("ALL"); // Nuevo estado para filtrado
+  const [selectedIMEIs, setSelectedIMEIs] = useState([]);
 
   const API_URL = "https://backinvfrpuno.onrender.com/imeis";
   const API_URL_ALL = `${API_URL}/all`;
@@ -264,7 +265,16 @@ const IMEIManager = () => {
   };
 
   const handleAuditSubmit = ({ auditors, observaciones }) => {
-    const formattedData = imeis.map(
+    if (selectedIMEIs.length === 0) {
+      alert("Por favor, seleccione al menos un IMEI para exportar");
+      return;
+    }
+
+    const selectedImeiData = imeis.filter(imei => 
+      selectedIMEIs.includes(imei.id)
+    );
+
+    const formattedData = selectedImeiData.map(
       ({ id, imei, estado, createdAt, updatedAt }) => ({
         IMEI: imei,
         ESTADO: estado === "L" ? "Libre" : "Vendido",
@@ -273,7 +283,24 @@ const IMEIManager = () => {
       })
     );
 
+    // Definir worksheet aquí
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
+
+    // Verificar si faltan IMEIs
+    const allIMEIs = imeis.filter(imei => imei.estado === "V");
+    const missingIMEIs = allIMEIs.filter(
+      imei => !selectedIMEIs.includes(imei.id)
+    );
+
+    if (missingIMEIs.length > 0) {
+      const missingList = missingIMEIs
+        .map(imei => imei.imei)
+        .join(", ");
+      const continuar = window.confirm(
+        `Faltan los siguientes IMEIs por seleccionar: ${missingList}\n\n¿Desea continuar de todos modos?`
+      );
+      if (!continuar) return;
+    }
 
     const auditData = [
       ["INFORMACIÓN DE AUDITORÍA"],
@@ -316,24 +343,13 @@ const IMEIManager = () => {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "IMEIs");
-    XLSX.utils.book_append_sheet(
-      workbook,
-      auditWorksheet,
-      "Información de Auditoría"
-    );
+    XLSX.utils.book_append_sheet(workbook, auditWorksheet, "Información de Auditoría");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `imeis_auditoria_${
-      new Date().toISOString().split("T")[0]
-    }.xlsx`;
+    link.download = `imeis_auditoria_${new Date().toISOString().split("T")[0]}.xlsx`;
     link.click();
 
     setShowAuditForm(false);
@@ -378,6 +394,14 @@ const IMEIManager = () => {
       const errorMessage = error.response?.data?.error || error.message;
       alert(`Error en la operación: ${errorMessage}`);
     }
+  };
+
+  const handleIMEISelection = (imei) => {
+    setSelectedIMEIs(prev => 
+      prev.includes(imei.id) 
+        ? prev.filter(id => id !== imei.id)
+        : [...prev, imei.id]
+    );
   };
 
   if (loading) return <p className="text-center">Cargando...</p>;
@@ -474,6 +498,19 @@ const IMEIManager = () => {
         <table className="table table-bordered table-striped">
           <thead className="thead-dark">
             <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedIMEIs(filteredIMEIs.map(imei => imei.id));
+                    } else {
+                      setSelectedIMEIs([]);
+                    }
+                  }}
+                  checked={selectedIMEIs.length === filteredIMEIs.length}
+                />
+              </th>
               <th>IMEI</th>
               <th>Estado</th>
               <th>Fecha de Creación</th>
@@ -484,6 +521,13 @@ const IMEIManager = () => {
           <tbody>
             {filteredIMEIs.map((imei) => (
               <tr key={imei.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedIMEIs.includes(imei.id)}
+                    onChange={() => handleIMEISelection(imei)}
+                  />
+                </td>
                 <td>
                   {editingIMEI?.id === imei.id ? (
                     <input
@@ -580,6 +624,16 @@ const IMEIManager = () => {
             Exportar a CSV
           </button>
         </div>
+      </div>
+
+      <div className="mt-3 mb-3">
+        <button 
+          className="btn btn-secondary"
+          onClick={() => setSelectedIMEIs([])}
+          disabled={selectedIMEIs.length === 0}
+        >
+          Limpiar selección ({selectedIMEIs.length})
+        </button>
       </div>
 
       {showAuditForm && (
