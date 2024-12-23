@@ -199,9 +199,7 @@ const modalDialogStyle = {
 };
 
 // Componente principal para la gestión de IMEIs
-const IMEIManager = () => {
-  // Estados principales
-  const [imeis, setImeis] = useState([]);
+const IMEIManager = ({ imeis }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [newIMEI, setNewIMEI] = useState("");
   const [newEstado, setNewEstado] = useState("L");
@@ -318,7 +316,27 @@ const IMEIManager = () => {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "IMEIs");
 
-      // ... resto del código de exportación ...
+      // Agregar información de auditoría
+      const auditorData = auditors.map((auditor, index) => ({
+        Auditor: `Auditor ${index + 1}`,
+        Nombres: auditor.nombres,
+        Apellidos: auditor.apellidos,
+        DNI: auditor.dni,
+      }));
+      const auditorWorksheet = XLSX.utils.json_to_sheet(auditorData);
+      XLSX.utils.book_append_sheet(workbook, auditorWorksheet, "Auditores");
+
+      // Agregar observaciones
+      const observacionesData = [{ Observaciones: observaciones }];
+      const observacionesWorksheet = XLSX.utils.json_to_sheet(observacionesData);
+      XLSX.utils.book_append_sheet(workbook, observacionesWorksheet, "Observaciones");
+
+      // Generar nombre de archivo con fecha actual
+      const date = new Date();
+      const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+      const fileName = `auditoria_imeis_${formattedDate}.xlsx`;
+
+      XLSX.writeFile(workbook, fileName);
 
       setShowAuditForm(false);
       setExportFormat(null);
