@@ -14,9 +14,7 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
     };
   }, []);
 
-  const [auditors, setAuditors] = useState([
-    { nombres: "", apellidos: "", dni: "" },
-  ]);
+  const [auditors, setAuditors] = useState([{ nombres: "", apellidos: "", dni: "" }]);
   const [observaciones, setObservaciones] = useState("");
 
   const handleAuditorChange = (index, field, value) => {
@@ -25,8 +23,7 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
     setAuditors(newAuditors);
   };
 
-  const addAuditor = () =>
-    setAuditors([...auditors, { nombres: "", apellidos: "", dni: "" }]);
+  const addAuditor = () => setAuditors([...auditors, { nombres: "", apellidos: "", dni: "" }]);
 
   const removeAuditor = (index) => {
     if (auditors.length > 1) {
@@ -45,11 +42,7 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Información de Auditoría</h5>
-            <button
-              type="button"
-              className="btn-close"
-              onClick={onCancel}
-            ></button>
+            <button type="button" className="btn-close" onClick={onCancel}></button>
           </div>
           <div className="modal-body">
             <form onSubmit={handleSubmit}>
@@ -59,45 +52,31 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
                   <InputField
                     label="Nombres"
                     value={auditor.nombres}
-                    onChange={(e) =>
-                      handleAuditorChange(index, "nombres", e.target.value)
-                    }
+                    onChange={(e) => handleAuditorChange(index, "nombres", e.target.value)}
                     required
                   />
                   <InputField
                     label="Apellidos"
                     value={auditor.apellidos}
-                    onChange={(e) =>
-                      handleAuditorChange(index, "apellidos", e.target.value)
-                    }
+                    onChange={(e) => handleAuditorChange(index, "apellidos", e.target.value)}
                     required
                   />
                   <InputField
                     label="DNI"
                     value={auditor.dni}
-                    onChange={(e) =>
-                      handleAuditorChange(index, "dni", e.target.value)
-                    }
+                    onChange={(e) => handleAuditorChange(index, "dni", e.target.value)}
                     required
                     pattern="[0-9]{8}"
                     maxLength="8"
                   />
                   {auditors.length > 1 && (
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => removeAuditor(index)}
-                    >
+                    <button type="button" className="btn btn-danger btn-sm" onClick={() => removeAuditor(index)}>
                       Eliminar Auditor
                     </button>
                   )}
                 </div>
               ))}
-              <button
-                type="button"
-                className="btn btn-secondary mb-3"
-                onClick={addAuditor}
-              >
+              <button type="button" className="btn btn-secondary mb-3" onClick={addAuditor}>
                 Agregar Otro Auditor
               </button>
 
@@ -105,10 +84,7 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
                 <h6 className="mb-3">Series Vendidas</h6>
                 {seriesVendidas.length > 0 ? (
                   <>
-                    <div
-                      className="table-responsive"
-                      style={{ maxHeight: "200px", overflowY: "auto" }}
-                    >
+                    <div className="table-responsive" style={{ maxHeight: "200px", overflowY: "auto" }}>
                       <table className="table table-sm table-bordered">
                         <thead className="table-secondary">
                           <tr>
@@ -120,23 +96,18 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
                           {seriesVendidas.map((serie) => (
                             <tr key={serie.id}>
                               <td>{serie.imei}</td>
-                              <td>
-                                {new Date(serie.updatedAt).toLocaleString()}
-                              </td>
+                              <td>{new Date(serie.updatedAt).toLocaleString()}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
                     <div className="mt-2">
-                      <strong>Total series vendidas:</strong>{" "}
-                      {seriesVendidas.length}
+                      <strong>Total series vendidas:</strong> {seriesVendidas.length}
                     </div>
                   </>
                 ) : (
-                  <p className="text-muted mb-0">
-                    No hay series vendidas para mostrar.
-                  </p>
+                  <p className="text-muted mb-0">No hay series vendidas para mostrar.</p>
                 )}
               </div>
 
@@ -151,11 +122,7 @@ const AuditorForm = ({ onSubmit, onCancel, imeis }) => {
                 ></textarea>
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={onCancel}
-                >
+                <button type="button" className="btn btn-secondary" onClick={onCancel}>
                   Cancelar
                 </button>
                 <button type="submit" className="btn btn-primary">
