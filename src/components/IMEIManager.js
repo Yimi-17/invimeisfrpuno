@@ -343,6 +343,19 @@ const IMEIManager = () => {
     return filtered;
   }, [imeis, stateFilter, searchTerm]);
 
+  useEffect(() => {
+    // Agregar Bootstrap Icons CDN
+    const iconLink = document.createElement('link');
+    iconLink.rel = 'stylesheet';
+    iconLink.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css';
+    document.head.appendChild(iconLink);
+
+    // Limpiar al desmontar
+    return () => {
+      document.head.removeChild(iconLink);
+    };
+  }, []);
+
   return (
     <div className="container-fluid py-4 bg-light">
       <div className="container mt-5">
@@ -350,14 +363,19 @@ const IMEIManager = () => {
 
         <div className="row mb-3">
           <div className="col-12 col-md-3 mb-2 mb-md-0">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Buscar por últimos dígitos"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              maxLength="4"
-            />
+            <div className="input-group mb-3">
+              <span className="input-group-text bg-white border-end-0">
+                <i className="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0"
+                placeholder="Buscar por últimos dígitos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                maxLength="4"
+              />
+            </div>
           </div>
 
           {/* Filtro de Estado */}
